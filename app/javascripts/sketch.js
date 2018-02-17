@@ -2,14 +2,14 @@ import "../stylesheets/app.css";
 
 export default function(state) {
   const _reference = new p5(instance => {
-    const cHeight = 500,
-      cWidth = 500,
-      size = 5,
+    const cHeight = 800,
+      cWidth = 800,
+      size = 8,
       columns = cWidth / size,
       rows = cHeight / size,
       magnifySize = size / 2 - 1 || 1;
 
-    const colors = [
+    state.colors = [
       { r: 34, g: 34, b: 34 }, //Black
       { r: 229, g: 0, b: 0 }, //Red
       { r: 130, g: 0, b: 128 }, //Purple
@@ -48,7 +48,10 @@ export default function(state) {
 
     //Setup - Creates canvas commences drawing
     instance.setup = () => {
-      const canvas = instance.createCanvas(cWidth, cHeight);
+      const canvas = instance.createCanvas(
+        cWidth + magnifySize * 2,
+        cHeight + magnifySize * 2
+      );
       canvas.parent("application");
       instance.frameRate(0);
       instance.draw();
@@ -56,9 +59,36 @@ export default function(state) {
 
     //Draw
     instance.draw = () => {
+      drawBorder();
       drawGrid();
       drawSelected();
     };
+
+    function drawBorder() {
+      instance.strokeWeight(0);
+      instance.fill("white");
+      //Top bar
+      instance.rect(0, 0, cWidth + magnifySize * 2, magnifySize);
+
+      //Bottom bar
+      instance.rect(
+        0,
+        cHeight + magnifySize,
+        cWidth + magnifySize * 2,
+        magnifySize
+      );
+
+      //Left bar
+      instance.rect(0, 0, magnifySize, cHeight + magnifySize * 2);
+
+      //Right bar
+      instance.rect(
+        cWidth + magnifySize,
+        0,
+        magnifySize,
+        cHeight + magnifySize * 2
+      );
+    }
 
     //Draws grid
     function drawGrid() {
@@ -67,9 +97,14 @@ export default function(state) {
       for (let x = 0; x < colorMap.length; x++) {
         for (let y = 0; y < colorMap[x].length; y++) {
           const idx = colorMap[x][y];
-          const { r, g, b } = colors[idx];
+          const { r, g, b } = state.colors[idx];
           instance.fill(instance.color(r, g, b));
-          instance.rect(x * size, y * size, size, size);
+          instance.rect(
+            magnifySize + x * size,
+            magnifySize + y * size,
+            size,
+            size
+          );
         }
       }
     }
@@ -78,13 +113,13 @@ export default function(state) {
       if (!state.selected.active) return;
 
       const idx = colorMap[state.selected.x][state.selected.y];
-      const { r, g, b } = colors[idx];
+      const { r, g, b } = state.colors[idx];
 
       instance.strokeWeight(1);
       instance.fill(instance.color(r, g, b));
       instance.rect(
-        state.selected.x * size - magnifySize,
-        state.selected.y * size - magnifySize,
+        state.selected.x * size,
+        state.selected.y * size,
         size + magnifySize * 2,
         size + magnifySize * 2
       );
@@ -93,20 +128,22 @@ export default function(state) {
     instance.mouseClicked = async () => {
       const { mouseX, mouseY } = instance;
       // Square Selection
-      if (mouseX > 0 && mouseY > 0 && mouseX < cWidth && mouseY < cHeight) {
-        state.selected.active = true;
-
-        state.selected.x = Math.floor(mouseX / size);
-        state.selected.y = Math.floor(mouseY / size);
-
-        console.log(
-          `Click at ${mouseX}, ${mouseY} === ${state.selected.x}, ${
-            state.selected.y
-          }`
-        );
-
-        instance.draw();
+      if (
+        mouseX < magnifySize ||
+        mouseY < magnifySize ||
+        mouseX > cWidth + magnifySize ||
+        mouseY > cHeight + magnifySize
+      ) {
+        state.selected.active = false;
+        return;
       }
+
+      state.selected.active = true;
+
+      state.selected.x = Math.floor((mouseX - magnifySize) / size);
+      state.selected.y = Math.floor((mouseY - magnifySize) / size);
+      console.log(state.selected);
+      instance.draw();
     };
   });
 }
