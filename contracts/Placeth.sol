@@ -14,12 +14,6 @@ contract Placeth is Ownable {
         yBounds = yB;
     }
 
-    modifier hasValidCoordinates(uint attemptX, uint attemptY) {
-        require(attemptX >= 0 && attemptX < xBounds);
-        require(attemptY >= 0 && attemptY < xBounds);
-        _;
-    }
-
     modifier hasValidColor(uint r, uint g, uint b) {
         require(r >= 0 && r <= 255);
         require(g >= 0 && g <= 255);
@@ -27,7 +21,7 @@ contract Placeth is Ownable {
         _;
     }
 
-    function fill (uint x, uint y, uint r, uint g, uint b) public hasValidCoordinates(x, y) hasValidColor(r, g, b) {
+    function fill (uint x, uint y, uint r, uint g, uint b) public hasValidColor(r, g, b) {
         Commit(msg.sender, x, y, r, g, b);
     }
 }

@@ -79,7 +79,7 @@ function drawBox () {
 
 }
 
-window.mouseClicked = function() {
+window.mouseClicked = async function() {
   if (mouseX < 0 || mouseY < 0 || mouseX > cWidth || mouseY > cHeight) {
     boxToggle = false
   } else {
@@ -88,6 +88,18 @@ window.mouseClicked = function() {
     if (boxToggle) {
       squareX = Math.floor(mouseX / size)
       squareY = Math.floor(mouseY / size)
+      const {r, g, b} = colorMap[squareX][squareY];
+      console.log(squareX, squareY, r, g, b)
+      try {
+        const tx = await window.contract.fill(squareX, squareY, r, g, b, {
+          from: address,
+          to: contract.address,
+          gas: 41000
+        })
+        console.log(tx)
+      } catch (e) {
+        console.error(e)
+      }
 
       console.log(`Click at ${mouseX}, ${mouseY} === ${squareX}, ${squareY}`)
     }
@@ -107,14 +119,15 @@ async function web3Init () {
     window.web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'))
   }
 
-  let address = web3.eth.accounts[0]
+  window.address = web3.eth.accounts[0]
   Placeth.setProvider(web3.currentProvider)
-  const contract = await Placeth.deployed()
-  console.log(contract)
+  window.contract = await Placeth.deployed()
+
+  console.log(window.contract)
 
   let _lastSyncedBlockNumber = 0
   const _interval = () => {
-    const _commitEvent = contract.Commit({}, {
+    const _commitEvent = window.contract.Commit({}, {
       fromBlock: 1 + _lastSyncedBlockNumber,
       toBlock: 'latest'
     })
