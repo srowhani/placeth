@@ -3,9 +3,11 @@ import '../stylesheets/app.css';
 import { injectWeb3, injectContract } from './inject';
 import Poller from './poller';
 
-(async () => {
+window.onload = (async () => {
     const context = {
-      _lastSyncedBlockNumber: 0
+      _activeItem: null,
+      _lastSyncedBlockNumber: 0,
+      selectedColor: 0
     };
     const cHeight = 500,
     cWidth = 500,
@@ -24,16 +26,32 @@ import Poller from './poller';
   let colorMap, squareX, squareY;
 
   const web3 = await injectWeb3()
+
   const contract = await injectContract(web3.currentProvider)
 
   console.log(contract)
 
   const poller = Poller.init();
 
-  context.address = web3.eth.accounts[0]
+  document.querySelector('.attempt-submit').addEventListener('click', async () => {
+    if (!selected.active)
+      return;
+
+    try {
+      const tx = await contract.fill(selected.x, selected.y, context.selectedColor, {
+        from: context.address,
+        to: contract.address,
+        gas: 41000
+      });
+      console.log(tx);
+    } catch (err) {
+      console.trace(err)
+    }
+  }, false);
 
   poller.queue('sync', () => {
     context.address = web3.eth.accounts[0]
+    document.querySelector('.current_address').innerHTML = context.address
   })
 
   const _reference = new p5(instance => {
@@ -115,26 +133,17 @@ import Poller from './poller';
     }
 
     instance.mouseClicked = async e => {
-      const { x, y } = e;
-
-      console.log(instance.mouseX, instance.mouseY);
-
       let mouseX = instance.mouseX;
       let mouseY = instance.mouseY;
 
       selected.active = true;
 
-      if (x < 0 || y < 0 || mouseX > cWidth + sWidth || mouseY > cHeight) {
+      if (mouseX < 0 || mouseY < 0 || mouseX > cWidth + sWidth || mouseY > cHeight) {
         return;
       }
 
       selected.x = Math.floor(mouseX / size);
       selected.y = Math.floor(mouseY / size);
-
-      context._activeItem = {
-        x: selected.x,
-        y: selected.y
-      };
 
       console.log(
         `Click at ${mouseX}, ${mouseY} === ${selected.x}, ${selected.y}`
@@ -144,17 +153,6 @@ import Poller from './poller';
 
       Object.assign(context, hexToRgb(context._activeColor));
       const { r, g, b } = colorMap[selected.x][selected.y];
-
-      try {
-        const tx = await contract.fill(selected.x, selected.y, r, g, b, {
-          from: context.address,
-          to: contract.address,
-          gas: 41000
-        });
-        console.log(tx);
-      } catch (err) {
-        console.trace(err)
-      }
     };
   });
   function hexToRgb(hex) {
@@ -167,4 +165,4 @@ import Poller from './poller';
         }
       : null;
   }
-})();
+});

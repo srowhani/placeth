@@ -20,7 +20,8 @@ export default {
     this._queue = []
   },
   queue (name, fn) {
-    this._queue[name] = fn
+    fn();
+    this._queue[name] = fn;
   },
   remove (name) {
     delete this._queue[name]
