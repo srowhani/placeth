@@ -39,6 +39,7 @@
     "webpack-dev-server": "^2.3.0"
   },
   "dependencies": {
+    "p5": "^0.6.0",
     "zeppelin-solidity": "^1.6.0"
   }
 }
