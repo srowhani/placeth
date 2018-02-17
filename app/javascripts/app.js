@@ -58,7 +58,7 @@ window.addEventListener('load', async () => {
     const shouldFill = commit_positions[`${pos.x}-${pos.y}`]
     context[shouldFill ? 'fillRect' : 'clearRect'](pos.x, pos.y, ...fill_d)
 
-    contract.fill(pos.x pos.y, {})
+    contract.fill(pos.x, pos.y, {})
   }, false)
 
   canvas.addEventListener('mouseover', e => {
