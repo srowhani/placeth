@@ -48,13 +48,17 @@ window.addEventListener('load', async () => {
   canvas.width = 800;
   canvas.height = 800;
 
+  let r = 255,
+      g = 255,
+      b = 255;
+
   canvas.addEventListener('click', e => {
     const pos = getCursorPosition(canvas, e);
     commit_positions[`${pos.x}-${pos.y}`] = !commit_positions[`${pos.x}-${pos.y}`]
     const shouldFill = commit_positions[`${pos.x}-${pos.y}`]
     context[shouldFill ? 'fillRect' : 'clearRect'](pos.x, pos.y, ...fill_d)
 
-    contract.fill({})
+    contract.fill(pos.x pos.y, {})
   }, false)
 
   canvas.addEventListener('mouseover', e => {

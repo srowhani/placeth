@@ -4,14 +4,14 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract Placeth is Ownable {
-    uint private minCost;
     uint private xBounds;
     uint private yBounds;
 
     event Commit(address indexed _addr, uint x, uint y, uint r, uint g, uint b);
 
-    function Placeth (uint _minCost) public {
-        minCost = _minCost;
+    function Placeth (uint xB, uint yB) public {
+        xBounds = xB;
+        yBounds = yB;
     }
 
     modifier hasValidCoordinates(uint attemptX, uint attemptY) {
