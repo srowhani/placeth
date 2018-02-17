@@ -7,7 +7,7 @@ contract Placeth is Ownable {
     uint private xBounds;
     uint private yBounds;
 
-    event Commit(address indexed _addr, uint x, uint y, uint r, uint g, uint b);
+    event Commit(uint x, uint y, uint r, uint g, uint b);
 
     function Placeth (uint xB, uint yB) public {
         xBounds = xB;
@@ -22,6 +22,6 @@ contract Placeth is Ownable {
     }
 
     function fill (uint x, uint y, uint r, uint g, uint b) public hasValidColor(r, g, b) {
-        Commit(msg.sender, x, y, r, g, b);
+        Commit(x, y, r, g, b);
     }
 }
