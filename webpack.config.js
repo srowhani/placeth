@@ -1,8 +1,9 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const glob = require('glob');
 
 module.exports = {
-  entry: './app/javascripts/app.js',
+  entry: glob.sync('./app/javascripts/*.js'),
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'app.js'

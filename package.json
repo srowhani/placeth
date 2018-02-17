@@ -6,7 +6,7 @@
     "lint": "eslint ./",
     "build": "webpack",
     "dev": "webpack-dev-server",
-    "testrpc": "testrpc --mnemonic \"test_network\" --accounts 50",
+    "testrpc": "ganache-cli --mnemonic \"test_network\" --accounts 50",
     "compile": "rm -f build/contracts/* && truffle compile",
     "migrate": "truffle migrate",
     "clean": "truffle networks --clean"
