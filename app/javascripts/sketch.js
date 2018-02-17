@@ -7,7 +7,7 @@ export default function(state) {
       size = 8,
       columns = cWidth / size,
       rows = cHeight / size,
-      magnifySize = size / 2 - 1 || 1;
+      magnifySize = Math.floor(size / 2 - 1) || 1;
 
     state.colors = [
       { r: 34, g: 34, b: 34 }, //Black
@@ -41,6 +41,8 @@ export default function(state) {
         }
       }
 
+      console.log(`${cWidth + magnifySize * 2} x ${cHeight + magnifySize * 2}`);
+
       function rand(max) {
         return Math.floor(Math.random() * Math.floor(max));
       }
@@ -49,8 +51,8 @@ export default function(state) {
     //Setup - Creates canvas commences drawing
     instance.setup = () => {
       const canvas = instance.createCanvas(
-        cWidth + magnifySize * 2,
-        cHeight + magnifySize * 2
+        1 + cWidth + magnifySize * 2,
+        1 + cHeight + magnifySize * 2
       );
       canvas.parent("application");
       instance.frameRate(0);
@@ -75,7 +77,7 @@ export default function(state) {
         0,
         cHeight + magnifySize,
         cWidth + magnifySize * 2,
-        magnifySize
+        magnifySize + 1
       );
 
       //Left bar
@@ -85,7 +87,7 @@ export default function(state) {
       instance.rect(
         cWidth + magnifySize,
         0,
-        magnifySize,
+        magnifySize + 1,
         cHeight + magnifySize * 2
       );
     }
@@ -125,8 +127,37 @@ export default function(state) {
       );
     }
 
+    function updateCanvas(prev) {
+      drawBorder();
+
+      if (prev) {
+        //Fix bugs
+        var minX = prev.x - 1 < 0 ? 0 : prev.x - 1;
+        for (var x = prev.x - 1; x <= prev.x + 1; x++) {
+          for (var y = prev.y - 1; y <= prev.y + 1; y++) {
+            const idx = colorMap[x][y];
+            const { r, g, b } = state.colors[idx];
+            instance.fill(instance.color(r, g, b));
+            instance.rect(
+              magnifySize + x * size,
+              magnifySize + y * size,
+              size,
+              size
+            );
+          }
+        }
+      }
+
+      drawSelected();
+    }
+
     instance.mouseClicked = async () => {
       const { mouseX, mouseY } = instance;
+      let prev = false;
+
+      console.log(mouseX, mouseY);
+      console.log(state.selected);
+
       // Square Selection
       if (
         mouseX < magnifySize ||
@@ -134,16 +165,29 @@ export default function(state) {
         mouseX > cWidth + magnifySize ||
         mouseY > cHeight + magnifySize
       ) {
+        //Unselect square (by clicking elsewhere)
         state.selected.active = false;
-        return;
+        prev = {
+          x: state.selected.x,
+          y: state.selected.y
+        };
+      } else {
+        //Select new
+        if (state.selected.active) {
+          prev = {
+            x: state.selected.x,
+            y: state.selected.y
+          };
+        }
+
+        state.selected = {
+          active: true,
+          x: Math.floor((mouseX - magnifySize) / size),
+          y: Math.floor((mouseY - magnifySize) / size)
+        };
       }
 
-      state.selected.active = true;
-
-      state.selected.x = Math.floor((mouseX - magnifySize) / size);
-      state.selected.y = Math.floor((mouseY - magnifySize) / size);
-      console.log(state.selected);
-      instance.draw();
+      updateCanvas(prev);
     };
   });
 }
