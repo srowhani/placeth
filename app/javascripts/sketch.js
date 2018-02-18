@@ -155,15 +155,16 @@ export default function(state) {
     }
 
     instance.mouseClicked = async () => {
-      const { mouseX, mouseY } = instance;
+      let { mouseX, mouseY } = instance;
+
       let prev = false;
 
       // Square Selection
       if (
         mouseX < magnifySize ||
         mouseY < magnifySize ||
-        mouseX > cWidth + magnifySize ||
-        mouseY > cHeight + magnifySize
+        mouseX >= cWidth + magnifySize ||
+        mouseY >= cHeight + magnifySize
       ) {
         //Unselect square (by clicking elsewhere)
         state.selected.active = false;
