@@ -1,7 +1,7 @@
 import "../stylesheets/app.css";
 
 export default function(state) {
-  const _reference = new p5(instance => {
+  this._reference = new p5(instance => {
     const cHeight = 800,
       cWidth = 800,
       size = 8,
@@ -28,20 +28,20 @@ export default function(state) {
       { r: 255, g: 255, b: 255 } //White
     ];
 
-    let colorMap, squareX, squareY;
+    let squareX, squareY;
 
     // Preload - gets called before setup or draw
     instance.preload = async () => {
-      colorMap = new Array(columns);
+      state.colorMap = new Array(columns);
 
-      for (var x = 0; x < colorMap.length; x++) {
-        colorMap[x] = new Array(rows);
-        for (var y = 0; y < colorMap[x].length; y++) {
-          colorMap[x][y] = rand(16);
+      for (var x = 0; x < state.colorMap.length; x++) {
+        state.colorMap[x] = new Array(rows);
+        for (var y = 0; y < state.colorMap[x].length; y++) {
+          state.colorMap[x][y] = rand(0);
         }
       }
 
-      console.log(`${colorMap.length}`);
+      console.log(`${state.colorMap.length}`);
 
       function rand(max) {
         return Math.floor(Math.random() * Math.floor(max));
@@ -96,9 +96,9 @@ export default function(state) {
     function drawGrid() {
       instance.strokeWeight(0);
 
-      for (let x = 0; x < colorMap.length; x++) {
-        for (let y = 0; y < colorMap[x].length; y++) {
-          const idx = colorMap[x][y];
+      for (let x = 0; x < state.colorMap.length; x++) {
+        for (let y = 0; y < state.colorMap[x].length; y++) {
+          const idx = state.colorMap[x][y];
           const { r, g, b } = state.colors[idx];
           instance.fill(instance.color(r, g, b));
           instance.rect(
@@ -114,7 +114,7 @@ export default function(state) {
     function drawSelected() {
       if (!state.selected.active) return;
 
-      const idx = colorMap[state.selected.x][state.selected.y];
+      const idx = state.colorMap[state.selected.x][state.selected.y];
       const { r, g, b } = state.colors[idx];
 
       instance.strokeWeight(1);
@@ -138,7 +138,7 @@ export default function(state) {
 
         for (var x = minX; x <= maxX; x++) {
           for (var y = minY; y <= maxY; y++) {
-            const idx = colorMap[x][y];
+            const idx = state.colorMap[x][y];
             const { r, g, b } = state.colors[idx];
             instance.fill(instance.color(r, g, b));
             instance.rect(

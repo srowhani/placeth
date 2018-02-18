@@ -6,7 +6,7 @@
     "lint": "eslint ./",
     "build": "webpack",
     "dev": "webpack-dev-server",
-    "testrpc": "ganache-cli --mnemonic \"test_network\" --accounts 50",
+    "testrpc": "testrpc --mnemonic \"test_network\" --accounts 50",
     "compile": "rm -f build/contracts/* && truffle compile",
     "migrate": "truffle migrate",
     "clean": "truffle networks --clean"
@@ -34,7 +34,7 @@
     "json-loader": "^0.5.4",
     "style-loader": "^0.13.1",
     "truffle-contract": "^1.1.11",
-    "web3": "^0.20.0",
+    "web3": "^0.20.5",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.3.0"
   },

@@ -10,13 +10,24 @@ window.onload = async () => {
       y: -1
     },
     _lastSyncedBlockNumber: 0,
-    selectedColor: 0
+    selectedColor: 0,
+    colorMap: null
   };
 
   const sketch = new Sketch(context);
 
-  const web3 = await injectWeb3();
-  const contract = await injectContract(web3.currentProvider);
+  const {
+    metamask,
+    web3
+  } = await injectWeb3();
+
+  console.log(metamask)
+
+  const { contract } = await injectContract(metamask.currentProvider);
+  const pollerContract = await injectContract(web3.currentProvider);
+
+  context.contract = contract;
+  context.poller = pollerContract.contract;
 
   console.log(contract);
 
@@ -27,45 +38,45 @@ window.onload = async () => {
     async () => {
       if (!context.selected.active) return;
 
-      try {
-        const tx = await contract.fill(
-          context.selected.x,
-          context.selected.y,
-          context.selectedColor,
-          {
-            from: context.address,
-            to: contract.address,
-            gas: 41000
+      const {x, y} = context.selected;
+
+      const tx = contract.fill(x, y, context.selectedColor, {
+        from: context.address,
+        to: contract.address,
+        gas: 41000
+      }, (err, tx) => {
+          if (err) {
+            console.error(err);
+            return;
           }
-        );
-        console.log(tx);
-      } catch (err) {
-        console.trace(err);
-      }
+          console.log(tx)
+        }
+      );
     },
     false
   );
 
   poller.queue("sync", () => {
-    context.address = web3.eth.accounts[0];
+    context.address = metamask.eth.accounts[0];
     document.querySelector(".current_address").innerHTML = context.address;
   });
 
   poller.queue("render", () => {
-    const _commitEvent = contract.Commit(
-      {},
-      {
-        fromBlock: 1 + context._lastSyncedBlockNumber,
-        toBlock: "latest"
-      },
-      (error, result) => {
+    const _commitEvent = context.poller.Commit(null, {
+      fromBlock: 1 + context._lastSyncedBlockNumber,
+      toBlock: "latest"
+    });
+    _commitEvent.watch(function (error, result) {
+      _commitEvent.stopWatching();
+      if (!error) {
         console.log(result);
-
-        if (!error) {
-          context._lastSyncedBlockNumber = result.blockNumber;
-          requestAnimationFrame(_ => drawToCanvas(result));
-        }
+        context._lastSyncedBlockNumber = result.blockNumber
+        let {x, y, color} = result.args;
+        x = Number(x)
+        y = Number(y)
+        color = Number(color)
+        context.colorMap[x][y] = color
       }
-    );
+    })
   });
 };
