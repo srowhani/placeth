@@ -102,7 +102,6 @@ window.onload = async () => {
     _commitEvent.watch(function(error, result) {
       _commitEvent.stopWatching();
       if (!error) {
-        console.log(result);
         context._lastSyncedBlockNumber = result.blockNumber;
         let { x, y, color } = result.args;
 
@@ -111,8 +110,8 @@ window.onload = async () => {
         color = Number(color);
 
         context.colorMap[x][y] = color;
-        sketch._reference.draw();
       }
     });
+    requestAnimationFrame(() => sketch._reference.draw())
   });
 };

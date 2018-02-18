@@ -1,5 +1,5 @@
 REMOTE=$(git config --get remote.origin.url)
-ember build --prod;
+npm run build;
 cd build;
 git init;
 git remote add origin $REMOTE;
