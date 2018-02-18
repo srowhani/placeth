@@ -1,6 +1,7 @@
 import { injectContract, injectWeb3 } from "./inject";
 import Poller from "./poller";
 import Sketch from "./sketch";
+import { toDataUrl } from 'ethereum-blockies'
 
 window.onload = async () => {
   const context = {
@@ -23,7 +24,7 @@ window.onload = async () => {
     div.className = 'color';
     div.onclick = () => {
       context.selectedColor = index;
-      document.querySelector('.color.preview').style.background = div.style.background
+      document.querySelector('.preview').style.color = div.style.background
     }
     document.querySelector('.color-pallete').appendChild(div);
   })
@@ -65,8 +66,13 @@ window.onload = async () => {
   );
 
   poller.queue("sync", () => {
+    if (context.address === metamask.eth.accounts[0]) {
+      return;
+    }
     context.address = metamask.eth.accounts[0];
-    document.querySelector(".current_address").innerHTML = context.address;
+    document.querySelector(".current_address .logo").src = toDataUrl(context.address);
+
+    document.querySelector(".current_address .title").innerHTML = context.address;
   });
 
   poller.queue("render", () => {

@@ -1,5 +1,21 @@
 html, body {
   height: 100%;
+  overflow-x: hidden;
+}
+
+#application {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+#application .color-pallete .color {
+  margin: 2px;
+}
+
+.container {
+  margin-top: 80px;
+  overflow-y: scroll;
 }
 
 canvas {
@@ -9,18 +25,43 @@ canvas {
 
 .menu {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
 }
 .color-pallete {
-  flex: 5;
-  height: 60px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .color {
   width: 40px;
   height: 40px;
+  border: .2px solid black;
+  cursor: pointer;
 }
 
-.preview {}
+.color:hover {
+  opacity: 0.8;
+}
+
+.current_address {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+nav {
+  z-index: 10000;
+  position: fixed;
+}
+
+.nav-wrapper .primary {
+  margin-left: 20px;
+}
+
+.logo {
+  height: 50px;
+  width: 50px;
+  margin: 0px 10px;
+  border: .8px solid black;
+}
