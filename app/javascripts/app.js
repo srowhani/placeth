@@ -18,10 +18,7 @@ window.onload = async () => {
 
   const sketch = new Sketch(context, {
     onSelect (selected) {
-      if (!localStorage['_hasSelectedBefore']) {
-        localStorage['_hasSelectedBefore'] = true;
-        $('.tap-target').tapTarget('open');
-      }
+      console.log(selected)
       context.selected = selected
     }
   });

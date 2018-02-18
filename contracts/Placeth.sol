@@ -15,12 +15,18 @@ contract Placeth is Ownable {
         yBounds = yB;
     }
 
+    modifier hasValidBounds (uint x, uint y) {
+        require(x <= xBounds && x >= 0);
+        require(y <= yBounds && y >= 0);
+        _;
+    }
+
     modifier hasValidColor(uint color) {
         require(color >= 0 && color <= 15);
         _;
     }
 
-    function fill (uint x, uint y, uint color) public hasValidColor(color) {
+    function fill (uint x, uint y, uint color) public hasValidColor(color) hasValidBounds(x, y) {
         Debug();
         Commit(x, y, color);
     }

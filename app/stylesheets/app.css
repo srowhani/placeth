@@ -1,6 +1,6 @@
 html, body {
   height: 100%;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 #application {
@@ -24,6 +24,8 @@ html, body {
 canvas {
   background: grey;
   cursor: pointer;
+  width: 1614px;
+  height: 1614px;
 }
 
 .menu {
