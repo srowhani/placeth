@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Placeth</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  </head>
+  <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#" class="primary">PlacΞth</a>
+        <ul id="nav-mobile">
+          <li>
+            <div class='current_address'>
+              <span class='title'></span>
+              <img class='circle logo'/>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class='container'>
+      <div id='application'>
+        <div class='color-pallete'></div>
+      </div>
+      <div class='menu'>
+        <button id='submit' class="attempt-submit btn waves-effect waves-light">Submit
+          <i class="material-icons right">check_circle</i>
+        </button>
+      </div>
+    </div>
+    <div class="tap-target" data-activates="submit">
+       <div class="tap-target-content">
+         <h5>Commit changes live to blockchain</h5>
+         <p>Click submit and confirm with MetaMask</p>
+         <p>See your block chain..ge</p>
+       </div>
+     </div>
+    <script src='https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.min.js'></script>
+    <script async src="./app.js"></script>
+  </body>
+</html>
