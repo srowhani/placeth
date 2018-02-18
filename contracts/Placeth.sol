@@ -1,14 +1,12 @@
 pragma solidity ^0.4.18;
 
-import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
-
-contract Placeth is Ownable {
+contract Placeth {
     uint private xBounds;
     uint private yBounds;
+    mapping(address => uint) lastSent;
 
     event Commit(uint x, uint y, uint color);
-    event Debug();
 
     function Placeth (uint xB, uint yB) public {
         xBounds = xB;
@@ -26,8 +24,13 @@ contract Placeth is Ownable {
         _;
     }
 
-    function fill (uint x, uint y, uint color) public hasValidColor(color) hasValidBounds(x, y) {
-        Debug();
+    modifier allowedToPlay {
+        require(block.number > lastSent[msg.sender] + 20);
+        _;
+    }
+
+    function fill (uint x, uint y, uint color) public hasValidColor(color) hasValidBounds(x, y) allowedToPlay {
         Commit(x, y, color);
+        lastSent[msg.sender] = block.number;
     }
 }

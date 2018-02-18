@@ -46,6 +46,8 @@ window.onload = async () => {
   context.contract = contract;
   context.poller = pollerContract.contract;
 
+  console.log(context.contract)
+
   const poller = Poller.init();
   const submit = document.querySelector('.attempt-submit')
 
@@ -53,17 +55,22 @@ window.onload = async () => {
     if (!context.selected.active) return;
 
     const {x, y} = context.selected;
-
-    const tx = contract.fill(x, y, context.selectedColor, {
-      from: context.address,
-      to: contract.address,
-      gas: 41000
-    }, (err, tx) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log(tx)
+    contract.fill.estimateGas((error, gas) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+      contract.fill(x, y, context.selectedColor, {
+        from: context.address,
+        to: contract.address,
+        gas: gas * 10
+      }, (err, tx) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          console.log(tx)
+      })
     })
   }, false);
 
