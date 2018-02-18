@@ -12,7 +12,8 @@ export default function(state, options = {}) {
       size = 8,
       columns = cWidth / size,
       rows = cHeight / size,
-      magnifySize = Math.floor(size / 2 - 1) || 1;
+      magnifySize = Math.floor(size / 2 - 1) || 1,
+      ignoredClassNames = ['color', 'attempt-submit']
 
     state.colors = [
       { r: 34, g: 34, b: 34 }, //Black
@@ -159,7 +160,13 @@ export default function(state, options = {}) {
       drawSelected();
     }
 
-    instance.mouseClicked = async () => {
+    instance.mouseClicked = e => {
+      const shouldIgnore = ignoredClassNames.some(
+        className => e.target.className.split(' ').some(term => term === className))
+      if (shouldIgnore) {
+        return;
+      }
+
       let { mouseX, mouseY } = instance;
 
       let prev = false;
