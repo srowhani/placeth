@@ -11,7 +11,11 @@ function injectWeb3() {
       // Use Mist/MetaMask's provider
       resolve({
         metamask: new Web3(web3.currentProvider),
-        web3: new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"))
+        web3: new Web3(
+          new Web3.providers.HttpProvider(
+            "https://ropsten.infura.io/cglHTDR60SijNPajNpZZ"
+          )
+        )
       });
     } else {
       console.warn(
@@ -19,7 +23,11 @@ function injectWeb3() {
       );
       // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
       resolve({
-        web3: new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:8545"))
+        web3: new Web3(
+          new Web3.providers.HttpProvider(
+            "https://ropsten.infura.io/cglHTDR60SijNPajNpZZ"
+          )
+        )
       });
     }
   });
@@ -29,7 +37,9 @@ function injectContract(provider) {
   const Placeth = contract(raw);
   Placeth.setProvider(provider);
 
-  return Placeth.deployed();
+  return Promise.resolve(
+    Placeth.at("0xbF6dcd87C7a0D585b23379BC4338235294AeF2F5")
+  );
 }
 
 export { injectWeb3, injectContract };

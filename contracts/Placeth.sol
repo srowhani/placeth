@@ -4,7 +4,6 @@ pragma solidity ^0.4.18;
 contract Placeth {
     uint private xBounds;
     uint private yBounds;
-    mapping(address => uint) lastSent;
 
     event Commit(uint x, uint y, uint color);
 
@@ -24,13 +23,7 @@ contract Placeth {
         _;
     }
 
-    modifier allowedToPlay {
-        require(block.number > lastSent[msg.sender] + 20);
-        _;
-    }
-
-    function fill (uint x, uint y, uint color) public hasValidColor(color) hasValidBounds(x, y) allowedToPlay {
+    function fill (uint x, uint y, uint color) public hasValidColor(color) hasValidBounds(x, y) {
         Commit(x, y, color);
-        lastSent[msg.sender] = block.number;
     }
 }

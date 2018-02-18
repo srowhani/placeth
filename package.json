@@ -42,6 +42,7 @@
   "dependencies": {
     "ethereum-blockies": "git+https://github.com/MyEtherWallet/blockies.git",
     "p5": "^0.6.0",
+    "truffle-hdwallet-provider": "0.0.3",
     "zeppelin-solidity": "^1.6.0"
   }
 }
