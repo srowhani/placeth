@@ -1,9 +1,8 @@
 import "../stylesheets/app.css";
 
 export default function(state, options = {}) {
-
   if (!options.onSelect) {
-    throw Error('Missing required property onSelect')
+    throw Error("Missing required property onSelect");
   }
 
   this._reference = new p5(instance => {
@@ -13,7 +12,7 @@ export default function(state, options = {}) {
       columns = cWidth / size,
       rows = cHeight / size,
       magnifySize = Math.floor(size / 2 - 1) || 1,
-      ignoredClassNames = ['color', 'attempt-submit']
+      ignoredClassNames = ["color", "attempt-submit"];
 
     state.colors = [
       { r: 34, g: 34, b: 34 }, //Black
@@ -32,7 +31,7 @@ export default function(state, options = {}) {
       { r: 229, g: 217, b: 0 }, //Yellow
       { r: 255, g: 167, b: 209 }, //Pink
       { r: 255, g: 255, b: 255 }, //White
-      { r: 208, g: 222, b: 223}
+      { r: 208, g: 222, b: 223 }
     ];
 
     let squareX, squareY;
@@ -46,12 +45,6 @@ export default function(state, options = {}) {
         for (var y = 0; y < state.colorMap[x].length; y++) {
           state.colorMap[x][y] = state.colors.length - 1;
         }
-      }
-
-      console.log(`${state.colorMap.length}`);
-
-      function rand(max) {
-        return Math.floor(Math.random() * Math.floor(max));
       }
     };
 
@@ -161,8 +154,9 @@ export default function(state, options = {}) {
     }
 
     instance.mouseClicked = e => {
-      const shouldIgnore = ignoredClassNames.some(
-        className => e.target.className.split(' ').some(term => term === className))
+      const shouldIgnore = ignoredClassNames.some(className =>
+        e.target.className.split(" ").some(term => term === className)
+      );
       if (shouldIgnore) {
         return;
       }
