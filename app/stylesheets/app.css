@@ -1,26 +1,84 @@
 html, body {
   height: 100%;
+  overflow-y: scroll;
+}
+
+#application {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+#application .color-pallete .color {
+  margin: 1px 2px 2px 5px
+}
+#application canvas {
+  border: .1px solid black;
+}
+
+.container {
+  margin-top: 80px;
+  overflow-y: scroll;
 }
 
 canvas {
   background: grey;
   cursor: pointer;
+  width: 1614px;
+  height: 1614px;
 }
 
 .menu {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
 }
 .color-pallete {
-  flex: 5;
-  height: 60px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .color {
   width: 40px;
   height: 40px;
+  cursor: pointer;
+  transition: all .2s ease;
 }
 
-.preview {}
+.color.active {
+  width: 50px;
+  height: 50px;
+}
+.color:hover {
+  opacity: 0.8;
+}
+
+.current_address {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+nav {
+  z-index: 10000;
+  position: fixed;
+}
+
+nav .nav-wrapper {
+  overflow: hidden;
+}
+
+nav ul {
+  float: right;
+}
+
+.nav-wrapper .primary {
+  margin-left: 20px;
+}
+
+.logo {
+  height: 50px;
+  width: 50px;
+  margin: 0px 10px;
+  border: .8px solid black;
+}

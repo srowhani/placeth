@@ -1,13 +1,18 @@
 import "../stylesheets/app.css";
 
-export default function(state) {
+export default function(state, options = {}) {
+  if (!options.onSelect) {
+    throw Error("Missing required property onSelect");
+  }
+
   this._reference = new p5(instance => {
     const cHeight = 800,
       cWidth = 800,
       size = 8,
       columns = cWidth / size,
       rows = cHeight / size,
-      magnifySize = Math.floor(size / 2 - 1) || 1;
+      magnifySize = Math.floor(size / 2 - 1) || 1,
+      ignoredClassNames = ["color", "attempt-submit"];
 
     state.colors = [
       { r: 34, g: 34, b: 34 }, //Black
@@ -25,7 +30,8 @@ export default function(state) {
       { r: 0, g: 211, b: 221 }, //Cyan
       { r: 229, g: 217, b: 0 }, //Yellow
       { r: 255, g: 167, b: 209 }, //Pink
-      { r: 255, g: 255, b: 255 } //White
+      { r: 255, g: 255, b: 255 }, //White
+      { r: 208, g: 222, b: 223 }
     ];
 
     let squareX, squareY;
@@ -37,7 +43,7 @@ export default function(state) {
       for (var x = 0; x < state.colorMap.length; x++) {
         state.colorMap[x] = new Array(rows);
         for (var y = 0; y < state.colorMap[x].length; y++) {
-          state.colorMap[x][y] = 15;
+          state.colorMap[x][y] = state.colors.length - 1;
         }
       }
     };
@@ -144,11 +150,17 @@ export default function(state) {
           }
         }
       }
-
       drawSelected();
     }
 
-    instance.mouseClicked = async () => {
+    instance.mouseClicked = e => {
+      const shouldIgnore = ignoredClassNames.some(className =>
+        e.target.className.split(" ").some(term => term === className)
+      );
+      if (shouldIgnore) {
+        return;
+      }
+
       let { mouseX, mouseY } = instance;
 
       let prev = false;
@@ -175,16 +187,12 @@ export default function(state) {
           };
         }
 
-        state.selected = {
+        options.onSelect({
           active: true,
           x: Math.floor((mouseX - magnifySize) / size),
           y: Math.floor((mouseY - magnifySize) / size)
-        };
+        });
       }
-
-      console.log(mouseX, mouseY);
-      console.log(state.selected);
-
       updateCanvas(prev);
     };
   });

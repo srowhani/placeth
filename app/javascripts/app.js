@@ -1,6 +1,7 @@
 import { injectContract, injectWeb3 } from "./inject";
 import Poller from "./poller";
 import Sketch from "./sketch";
+import { toDataUrl } from 'ethereum-blockies'
 
 window.onload = async () => {
   const context = {
@@ -15,7 +16,12 @@ window.onload = async () => {
     colors: []
   };
 
-  const sketch = new Sketch(context);
+  const sketch = new Sketch(context, {
+    onSelect (selected) {
+      console.log(selected)
+      context.selected = selected
+    }
+  });
 
   context.colors.forEach((c, index) => {
     const div = document.createElement('div')
@@ -23,7 +29,8 @@ window.onload = async () => {
     div.className = 'color';
     div.onclick = () => {
       context.selectedColor = index;
-      document.querySelector('.color.preview').style.background = div.style.background
+      $('.color').removeClass('active');
+      $(div).addClass('active')
     }
     document.querySelector('.color-pallete').appendChild(div);
   })
@@ -40,33 +47,34 @@ window.onload = async () => {
   context.poller = pollerContract.contract;
 
   const poller = Poller.init();
+  const submit = document.querySelector('.attempt-submit')
 
-  document.querySelector(".attempt-submit").addEventListener(
-    "click",
-    async () => {
-      if (!context.selected.active) return;
+  submit.addEventListener("click", e => {
+    if (!context.selected.active) return;
 
-      const {x, y} = context.selected;
+    const {x, y} = context.selected;
 
-      const tx = contract.fill(x, y, context.selectedColor, {
-        from: context.address,
-        to: contract.address,
-        gas: 41000
-      }, (err, tx) => {
-          if (err) {
-            console.error(err);
-            return;
-          }
-          console.log(tx)
+    const tx = contract.fill(x, y, context.selectedColor, {
+      from: context.address,
+      to: contract.address,
+      gas: 41000
+    }, (err, tx) => {
+        if (err) {
+          console.error(err);
+          return;
         }
-      );
-    },
-    false
-  );
+        console.log(tx)
+    })
+  }, false);
 
   poller.queue("sync", () => {
+    if (context.address === metamask.eth.accounts[0]) {
+      return;
+    }
     context.address = metamask.eth.accounts[0];
-    document.querySelector(".current_address").innerHTML = context.address;
+    document.querySelector(".current_address .logo").src = toDataUrl(context.address);
+
+    document.querySelector(".current_address .title").innerHTML = context.address;
   });
 
   poller.queue("render", () => {
