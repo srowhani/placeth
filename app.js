@@ -27954,22 +27954,11 @@ module.exports = XMLHttpRequest;
 function injectWeb3() {
   return new Promise(resolve => {
     if (typeof web3 !== "undefined") {
-      console.warn(
-        "Using web3 detected from external source. If you find that your accounts don't appear or you have 0 MetaCoin, ensure you've configured that source properly. If using MetaMask, see the following link. Feel free to delete this warning. :) http://truffleframework.com/tutorials/truffle-and-metamask"
-      );
       // Use Mist/MetaMask's provider
       resolve({
-        metamask: new __WEBPACK_IMPORTED_MODULE_1_web3___default.a(web3.currentProvider),
-        web3: new __WEBPACK_IMPORTED_MODULE_1_web3___default.a(
-          new __WEBPACK_IMPORTED_MODULE_1_web3___default.a.providers.HttpProvider(
-            "https://ropsten.infura.io/cglHTDR60SijNPajNpZZ"
-          )
-        )
+        metamask: new __WEBPACK_IMPORTED_MODULE_1_web3___default.a(web3.currentProvider)
       });
     } else {
-      console.warn(
-        "No web3 detected. Falling back to http://127.0.0.1:8545. You should remove this fallback when you deploy live, as it's inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask"
-      );
       // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
       resolve({
         web3: new __WEBPACK_IMPORTED_MODULE_1_web3___default.a(
@@ -28021,7 +28010,7 @@ function injectContract(provider) {
     this._queue = []
   },
   queue (name, fn) {
-    fn();
+    requestAnimationFrame(() =>fn());
     this._queue[name] = fn;
   },
   remove (name) {
@@ -28639,12 +28628,11 @@ window.onload = async () => {
 
   const sketch = new __WEBPACK_IMPORTED_MODULE_2__sketch__["a" /* default */](context, {
     onSelect(selected) {
-      console.log(selected);
       context.selected = selected;
     }
   });
 
-  context.colors.forEach((c, index) => {
+  context.colors.slice(0, context.colors.length - 1).forEach((c, index) => {
     const div = document.createElement("div");
     div.style.background = `rgb(${c.r}, ${c.g}, ${c.b})`;
     div.className = "color";
@@ -28656,15 +28644,11 @@ window.onload = async () => {
     document.querySelector(".color-pallete").appendChild(div);
   });
 
-  const { metamask, web3 } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["a" /* injectWeb3 */])();
+  const { metamask } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["a" /* injectWeb3 */])();
 
   const { contract } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["b" /* injectContract */])(metamask.currentProvider);
-  const pollerContract = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["b" /* injectContract */])(web3.currentProvider);
 
   context.contract = contract;
-  context.poller = pollerContract.contract;
-
-  console.log(context.contract);
 
   const poller = __WEBPACK_IMPORTED_MODULE_1__poller__["a" /* default */].init();
   const submit = document.querySelector(".attempt-submit");
@@ -28675,29 +28659,22 @@ window.onload = async () => {
       if (!context.selected.active) return;
 
       const { x, y } = context.selected;
-      contract.fill.estimateGas((error, gas) => {
-        if (error) {
-          console.error(error);
-          return;
-        }
-        contract.fill(
-          x,
-          y,
-          context.selectedColor,
-          {
-            from: context.address,
-            to: contract.address,
-            gas: 25000
-          },
-          (err, tx) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
-            console.log(tx);
+      contract.fill(
+        x,
+        y,
+        context.selectedColor,
+        {
+          from: context.address,
+          to: contract.address,
+          gas: 25000
+        },
+        (err, tx) => {
+          if (err) {
+            console.error(err);
+            return;
           }
-        );
-      });
+        }
+      );
     },
     false
   );
@@ -28733,7 +28710,7 @@ window.onload = async () => {
         context.colorMap[x][y] = color;
       }
     });
-    requestAnimationFrame(() => sketch._reference.draw())
+    sketch._reference.draw()
   });
 };
 
@@ -31929,7 +31906,7 @@ exports = module.exports = __webpack_require__(100)();
 
 
 // module
-exports.push([module.i, "html, body {\n  height: 100%;\n  overflow-y: scroll;\n}\n\n#application {\n  display: flex;\n  flex-direction: row;\n  height: 100%;\n}\n\n#application .color-pallete .color {\n  margin: 1px 2px 2px 5px\n}\n#application canvas {\n  border: .1px solid black;\n}\n\n.container {\n  margin-top: 80px;\n  overflow-y: scroll;\n}\n\ncanvas {\n  background: grey;\n  cursor: pointer;\n  width: 1614px;\n  height: 1614px;\n}\n\n.menu {\n  display: flex;\n  flex-direction: row-reverse;\n  justify-content: flex-start;\n}\n.color-pallete {\n  display: flex;\n  flex-direction: column;\n}\n\n.color {\n  width: 40px;\n  height: 40px;\n  cursor: pointer;\n  transition: all .2s ease;\n}\n\n.color.active {\n  width: 50px;\n  height: 50px;\n}\n.color:hover {\n  opacity: 0.8;\n}\n\n.current_address {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n}\n\nnav {\n  z-index: 10000;\n  position: fixed;\n}\n\nnav .nav-wrapper {\n  overflow: hidden;\n}\n\nnav ul {\n  float: right;\n}\n\n.nav-wrapper .primary {\n  margin-left: 20px;\n}\n\n.logo {\n  height: 50px;\n  width: 50px;\n  margin: 0px 10px;\n  border: .8px solid black;\n}\n", ""]);
+exports.push([module.i, "html, body {\n  height: 100%;\n  overflow-y: scroll;\n}\n\n#application {\n  display: flex;\n  flex-direction: row;\n  height: 100%;\n  justify-content: center;\n}\n\n#application .color-pallete .color {\n  margin: 1px 2px 2px 5px\n}\n#application canvas {\n  border: .1px solid black;\n}\n\n.container {\n  margin-top: 80px;\n  overflow-y: scroll;\n}\n\ncanvas {\n  background: grey;\n  cursor: pointer;\n  width: 1614px;\n  height: 1614px;\n}\n\n.menu {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n}\n.color-pallete {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n.color {\n  width: 40px;\n  height: 40px;\n  cursor: pointer;\n  transition: all .2s ease;\n}\n\n.color.active {\n  width: 50px;\n  height: 50px;\n}\n.color:hover {\n  opacity: 0.8;\n}\n\n.current_address {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n}\n\nnav {\n  z-index: 10000;\n  position: fixed;\n}\n\nnav .nav-wrapper {\n  overflow: hidden;\n}\n\nnav ul {\n  float: right;\n}\n\n.nav-wrapper .primary {\n  margin-left: 20px;\n}\n\n.logo {\n  height: 50px;\n  width: 50px;\n  margin: 0px 10px;\n  border: .8px solid black;\n}\n", ""]);
 
 // exports
 
