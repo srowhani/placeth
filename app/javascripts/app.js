@@ -11,25 +11,33 @@ window.onload = async () => {
     },
     _lastSyncedBlockNumber: 0,
     selectedColor: 0,
-    colorMap: null
+    colorMap: null,
+    colors: []
   };
 
   const sketch = new Sketch(context);
+
+  context.colors.forEach((c, index) => {
+    const div = document.createElement('div')
+    div.style.background = `rgb(${c.r}, ${c.g}, ${c.b})`
+    div.className = 'color';
+    div.onclick = () => {
+      context.selectedColor = index;
+      document.querySelector('.color.preview').style.background = div.style.background
+    }
+    document.querySelector('.color-pallete').appendChild(div);
+  })
 
   const {
     metamask,
     web3
   } = await injectWeb3();
 
-  console.log(metamask)
-
   const { contract } = await injectContract(metamask.currentProvider);
   const pollerContract = await injectContract(web3.currentProvider);
 
   context.contract = contract;
   context.poller = pollerContract.contract;
-
-  console.log(contract);
 
   const poller = Poller.init();
 
@@ -72,10 +80,13 @@ window.onload = async () => {
         console.log(result);
         context._lastSyncedBlockNumber = result.blockNumber
         let {x, y, color} = result.args;
-        x = Number(x)
-        y = Number(y)
-        color = Number(color)
-        context.colorMap[x][y] = color
+
+        x = Number(x);
+        y = Number(y);
+        color = Number(color);
+
+        context.colorMap[x][y] = color;
+        sketch._reference.draw();
       }
     })
   });

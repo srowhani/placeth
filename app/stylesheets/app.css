@@ -4,4 +4,23 @@ html, body {
 
 canvas {
   background: grey;
+  cursor: pointer;
 }
+
+.menu {
+  display: flex;
+  flex-direction: row;
+}
+.color-pallete {
+  flex: 5;
+  height: 60px;
+  display: flex;
+  flex-direction: row;
+}
+
+.color {
+  width: 40px;
+  height: 40px;
+}
+
+.preview {}

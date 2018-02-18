@@ -37,7 +37,7 @@ export default function(state) {
       for (var x = 0; x < state.colorMap.length; x++) {
         state.colorMap[x] = new Array(rows);
         for (var y = 0; y < state.colorMap[x].length; y++) {
-          state.colorMap[x][y] = rand(0);
+          state.colorMap[x][y] = rand(state.colors.length);
         }
       }
 
