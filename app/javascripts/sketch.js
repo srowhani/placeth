@@ -31,7 +31,8 @@ export default function(state, options = {}) {
       { r: 0, g: 211, b: 221 }, //Cyan
       { r: 229, g: 217, b: 0 }, //Yellow
       { r: 255, g: 167, b: 209 }, //Pink
-      { r: 255, g: 255, b: 255 } //White
+      { r: 255, g: 255, b: 255 }, //White
+      { r: 208, g: 222, b: 223}
     ];
 
     let squareX, squareY;
@@ -43,7 +44,7 @@ export default function(state, options = {}) {
       for (var x = 0; x < state.colorMap.length; x++) {
         state.colorMap[x] = new Array(rows);
         for (var y = 0; y < state.colorMap[x].length; y++) {
-          state.colorMap[x][y] = rand(state.colors.length);
+          state.colorMap[x][y] = state.colors.length - 1;
         }
       }
 
@@ -156,7 +157,6 @@ export default function(state, options = {}) {
           }
         }
       }
-
       drawSelected();
     }
 

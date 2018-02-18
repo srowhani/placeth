@@ -18,6 +18,10 @@ window.onload = async () => {
 
   const sketch = new Sketch(context, {
     onSelect (selected) {
+      if (!localStorage['_hasSelectedBefore']) {
+        localStorage['_hasSelectedBefore'] = true;
+        $('.tap-target').tapTarget('open');
+      }
       context.selected = selected
     }
   });
@@ -28,7 +32,8 @@ window.onload = async () => {
     div.className = 'color';
     div.onclick = () => {
       context.selectedColor = index;
-      document.querySelector('.preview').style.color = div.style.background
+      $('.color').removeClass('active');
+      $(div).addClass('active')
     }
     document.querySelector('.color-pallete').appendChild(div);
   })
