@@ -20,7 +20,7 @@ export default {
     this._queue = []
   },
   queue (name, fn) {
-    fn();
+    requestAnimationFrame(() =>fn());
     this._queue[name] = fn;
   },
   remove (name) {

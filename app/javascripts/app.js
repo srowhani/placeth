@@ -18,12 +18,11 @@ window.onload = async () => {
 
   const sketch = new Sketch(context, {
     onSelect(selected) {
-      console.log(selected);
       context.selected = selected;
     }
   });
 
-  context.colors.forEach((c, index) => {
+  context.colors.slice(0, context.colors.length - 1).forEach((c, index) => {
     const div = document.createElement("div");
     div.style.background = `rgb(${c.r}, ${c.g}, ${c.b})`;
     div.className = "color";
@@ -35,15 +34,11 @@ window.onload = async () => {
     document.querySelector(".color-pallete").appendChild(div);
   });
 
-  const { metamask, web3 } = await injectWeb3();
+  const { metamask } = await injectWeb3();
 
   const { contract } = await injectContract(metamask.currentProvider);
-  const pollerContract = await injectContract(web3.currentProvider);
 
   context.contract = contract;
-  context.poller = pollerContract.contract;
-
-  console.log(context.contract);
 
   const poller = Poller.init();
   const submit = document.querySelector(".attempt-submit");
@@ -54,29 +49,22 @@ window.onload = async () => {
       if (!context.selected.active) return;
 
       const { x, y } = context.selected;
-      contract.fill.estimateGas((error, gas) => {
-        if (error) {
-          console.error(error);
-          return;
-        }
-        contract.fill(
-          x,
-          y,
-          context.selectedColor,
-          {
-            from: context.address,
-            to: contract.address,
-            gas: 25000
-          },
-          (err, tx) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
-            console.log(tx);
+      contract.fill(
+        x,
+        y,
+        context.selectedColor,
+        {
+          from: context.address,
+          to: contract.address,
+          gas: 25000
+        },
+        (err, tx) => {
+          if (err) {
+            console.error(err);
+            return;
           }
-        );
-      });
+        }
+      );
     },
     false
   );
@@ -112,6 +100,6 @@ window.onload = async () => {
         context.colorMap[x][y] = color;
       }
     });
-    requestAnimationFrame(() => sketch._reference.draw())
+    sketch._reference.draw()
   });
 };

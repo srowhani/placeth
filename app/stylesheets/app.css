@@ -7,6 +7,7 @@ html, body {
   display: flex;
   flex-direction: row;
   height: 100%;
+  justify-content: center;
 }
 
 #application .color-pallete .color {
@@ -30,12 +31,13 @@ canvas {
 
 .menu {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-start;
+  flex-direction: row;
+  justify-content: center;
 }
 .color-pallete {
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .color {
