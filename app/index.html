@@ -25,13 +25,20 @@
         <div class='color-pallete'></div>
       </div>
       <div class='menu'>
-        <button class="attempt-submit btn waves-effect waves-light">Submit
+        <button id='submit' class="attempt-submit btn waves-effect waves-light">Submit
           <i class="preview material-icons right">check_circle</i>
         </button>
       </div>
     </div>
+    <div class="tap-target" data-activates="submit">
+       <div class="tap-target-content">
+         <h5>Title</h5>
+         <p>A bunch of text</p>
+       </div>
+     </div>
+    <script src='https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.0/p5.min.js'></script>
-    <script src="./app.js"></script>
+    <script async src="./app.js"></script>
   </body>
 </html>

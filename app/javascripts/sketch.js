@@ -1,6 +1,11 @@
 import "../stylesheets/app.css";
 
-export default function(state) {
+export default function(state, options = {}) {
+
+  if (!options.onSelect) {
+    throw Error('Missing required property onSelect')
+  }
+
   this._reference = new p5(instance => {
     const cHeight = 800,
       cWidth = 800,
@@ -181,16 +186,12 @@ export default function(state) {
           };
         }
 
-        state.selected = {
+        options.onSelect({
           active: true,
           x: Math.floor((mouseX - magnifySize) / size),
           y: Math.floor((mouseY - magnifySize) / size)
-        };
+        });
       }
-
-      console.log(mouseX, mouseY);
-      console.log(state.selected);
-
       updateCanvas(prev);
     };
   });

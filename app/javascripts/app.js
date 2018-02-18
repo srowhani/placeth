@@ -16,7 +16,11 @@ window.onload = async () => {
     colors: []
   };
 
-  const sketch = new Sketch(context);
+  const sketch = new Sketch(context, {
+    onSelect (selected) {
+      context.selected = selected
+    }
+  });
 
   context.colors.forEach((c, index) => {
     const div = document.createElement('div')
@@ -41,29 +45,25 @@ window.onload = async () => {
   context.poller = pollerContract.contract;
 
   const poller = Poller.init();
+  const submit = document.querySelector('.attempt-submit')
 
-  document.querySelector(".attempt-submit").addEventListener(
-    "click",
-    async () => {
-      if (!context.selected.active) return;
+  submit.addEventListener("click", e => {
+    if (!context.selected.active) return;
 
-      const {x, y} = context.selected;
+    const {x, y} = context.selected;
 
-      const tx = contract.fill(x, y, context.selectedColor, {
-        from: context.address,
-        to: contract.address,
-        gas: 41000
-      }, (err, tx) => {
-          if (err) {
-            console.error(err);
-            return;
-          }
-          console.log(tx)
+    const tx = contract.fill(x, y, context.selectedColor, {
+      from: context.address,
+      to: contract.address,
+      gas: 41000
+    }, (err, tx) => {
+        if (err) {
+          console.error(err);
+          return;
         }
-      );
-    },
-    false
-  );
+        console.log(tx)
+    })
+  }, false);
 
   poller.queue("sync", () => {
     if (context.address === metamask.eth.accounts[0]) {
