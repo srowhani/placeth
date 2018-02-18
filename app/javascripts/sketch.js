@@ -41,7 +41,7 @@ export default function(state) {
         }
       }
 
-      console.log(`${cWidth + magnifySize * 2} x ${cHeight + magnifySize * 2}`);
+      console.log(`${colorMap.length}`);
 
       function rand(max) {
         return Math.floor(Math.random() * Math.floor(max));
@@ -131,10 +131,13 @@ export default function(state) {
       drawBorder();
 
       if (prev) {
-        //Fix bugs
-        var minX = prev.x - 1 < 0 ? 0 : prev.x - 1;
-        for (var x = prev.x - 1; x <= prev.x + 1; x++) {
-          for (var y = prev.y - 1; y <= prev.y + 1; y++) {
+        const minX = prev.x - 1 < 0 ? 0 : prev.x - 1,
+          maxX = prev.x + 1 >= columns ? columns - 1 : prev.x + 1,
+          minY = prev.y - 1 < 0 ? 0 : prev.y - 1,
+          maxY = prev.y + 1 >= rows ? rows - 1 : prev.y + 1;
+
+        for (var x = minX; x <= maxX; x++) {
+          for (var y = minY; y <= maxY; y++) {
             const idx = colorMap[x][y];
             const { r, g, b } = state.colors[idx];
             instance.fill(instance.color(r, g, b));
@@ -154,9 +157,6 @@ export default function(state) {
     instance.mouseClicked = async () => {
       const { mouseX, mouseY } = instance;
       let prev = false;
-
-      console.log(mouseX, mouseY);
-      console.log(state.selected);
 
       // Square Selection
       if (
@@ -186,6 +186,9 @@ export default function(state) {
           y: Math.floor((mouseY - magnifySize) / size)
         };
       }
+
+      console.log(mouseX, mouseY);
+      console.log(state.selected);
 
       updateCanvas(prev);
     };
