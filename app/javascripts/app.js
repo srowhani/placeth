@@ -13,7 +13,8 @@ window.onload = async () => {
     _lastSyncedBlockNumber: 0,
     selectedColor: 0,
     colorMap: null,
-    colors: []
+    colors: [],
+    modifiedPixels: []
   };
 
   const sketch = new Sketch(context, {
@@ -74,23 +75,21 @@ window.onload = async () => {
       return;
     }
     context.address = metamask.eth.accounts[0];
-    document.querySelector(".current_address .logo").src = toDataUrl(
-      context.address
-    );
+    document.querySelector(".current_address .logo").src = toDataUrl(context.address);
 
-    document.querySelector(".current_address .title").innerHTML =
-      context.address;
+    document.querySelector(".current_address .title").innerHTML = context.address;
   });
-
+  const blockNumber = document.querySelector('.block-number')
   poller.queue("render", () => {
+    context.modifiedPixels = []
     const _commitEvent = context.contract.Commit(null, {
-      fromBlock: 1 + context._lastSyncedBlockNumber,
+      fromBlock: context._lastSyncedBlockNumber,
       toBlock: "latest"
     });
     _commitEvent.watch(function(error, result) {
-      _commitEvent.stopWatching();
       if (!error) {
         context._lastSyncedBlockNumber = result.blockNumber;
+
         let { x, y, color } = result.args;
 
         x = Number(x);
@@ -98,8 +97,10 @@ window.onload = async () => {
         color = Number(color);
 
         context.colorMap[x][y] = color;
+        context.modifiedPixels.push({x, y, color})
       }
+      _commitEvent.stopWatching();
     });
-    sketch._reference.draw()
+    sketch._reference.smart_draw()
   });
 };

@@ -13,9 +13,7 @@ function injectWeb3() {
       // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
       resolve({
         web3: new Web3(
-          new Web3.providers.HttpProvider(
-            "https://ropsten.infura.io/cglHTDR60SijNPajNpZZ"
-          )
+          new Web3.providers.HttpProvider('https://api.myetherapi.com/eth')
         )
       });
     }

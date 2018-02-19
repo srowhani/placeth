@@ -59,9 +59,25 @@ export default function(state, options = {}) {
       instance.draw();
     };
 
+    instance.smart_draw = () => {
+      instance.strokeWeight(0);
+      
+      state.modifiedPixels.forEach((x, y, color) => {
+        debugger
+        const c = state.colors[color];
+        instance.fill(instance.color(c.r, c.g, c.b));
+        instance.rect(
+          magnifySize + x * size,
+          magnifySize + y * size,
+          size
+        );
+      })
+    }
+
     //Draw
     instance.draw = () => {
       drawBorder();
+      if (state.modifiedPixels)
       drawGrid();
       drawSelected();
     };
