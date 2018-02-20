@@ -13,9 +13,6 @@ html, body {
 #application .color-pallete .color {
   margin: 1px 2px 2px 5px
 }
-#application canvas {
-  border: .1px solid black;
-}
 
 .container {
   margin-top: 80px;

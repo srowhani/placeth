@@ -61,23 +61,22 @@ export default function(state, options = {}) {
 
     instance.smart_draw = () => {
       instance.strokeWeight(0);
-      
-      state.modifiedPixels.forEach((x, y, color) => {
-        debugger
-        const c = state.colors[color];
-        instance.fill(instance.color(c.r, c.g, c.b));
+      state.modifiedPixels.forEach(({x, y, color}) => {
+        const {r, g, b} = state.colors[color];
+        instance.fill(instance.color(r, g, b));
         instance.rect(
           magnifySize + x * size,
           magnifySize + y * size,
+          size,
           size
         );
       })
+      state.modifiedPixels = []
     }
 
     //Draw
     instance.draw = () => {
       drawBorder();
-      if (state.modifiedPixels)
       drawGrid();
       drawSelected();
     };

@@ -4,6 +4,7 @@ import Sketch from "./sketch";
 import { toDataUrl } from "ethereum-blockies";
 
 window.onload = async () => {
+  $('.modal').modal()
   const context = {
     selected: {
       active: false,
@@ -23,6 +24,8 @@ window.onload = async () => {
     }
   });
 
+  sketch._reference.draw()
+
   context.colors.slice(0, context.colors.length - 1).forEach((c, index) => {
     const div = document.createElement("div");
     div.style.background = `rgb(${c.r}, ${c.g}, ${c.b})`;
@@ -35,10 +38,42 @@ window.onload = async () => {
     document.querySelector(".color-pallete").appendChild(div);
   });
 
-  const { metamask } = await injectWeb3();
+  const { metamask } = await injectWeb3()
+    .catch(err => {
+      $('#error-modal').modal('open')
+      $('.modal-content').html(err)
 
-  const { contract } = await injectContract(metamask.currentProvider);
+      return {
+        metamask: null
+      }
+    });
 
+  if (!metamask) {
+    return;
+  }
+
+
+  const shouldContinue = await new Promise (resolve => {
+    metamask.version.getNetwork((err, net_id) => {
+      if (err) {
+        resolve(false)
+      } else {
+        resolve(net_id == 3)
+      }
+    })
+  })
+
+  if (!shouldContinue) {
+    $('#error-modal').modal('open')
+    $('.modal-content').html('Must be connected to Ropsten network for application to function')
+    return;
+  }
+
+  const { contract } = await injectContract(metamask.currentProvider)
+
+  if (!contract) {
+    return;
+  }
   context.contract = contract;
 
   const poller = Poller.init();
@@ -61,7 +96,8 @@ window.onload = async () => {
         },
         (err, tx) => {
           if (err) {
-            console.error(err);
+            $('#error-modal').modal('open')
+            $('.modal-content').html(err.message)
             return;
           }
         }
@@ -81,17 +117,16 @@ window.onload = async () => {
   });
   const blockNumber = document.querySelector('.block-number')
   poller.queue("render", () => {
-    context.modifiedPixels = []
+
     const _commitEvent = context.contract.Commit(null, {
-      fromBlock: context._lastSyncedBlockNumber,
+      fromBlock: 1 + context._lastSyncedBlockNumber,
       toBlock: "latest"
     });
     _commitEvent.watch(function(error, result) {
+      _commitEvent.stopWatching();
       if (!error) {
         context._lastSyncedBlockNumber = result.blockNumber;
-
         let { x, y, color } = result.args;
-
         x = Number(x);
         y = Number(y);
         color = Number(color);
@@ -99,7 +134,6 @@ window.onload = async () => {
         context.colorMap[x][y] = color;
         context.modifiedPixels.push({x, y, color})
       }
-      _commitEvent.stopWatching();
     });
     sketch._reference.smart_draw()
   });
