@@ -27952,21 +27952,13 @@ module.exports = XMLHttpRequest;
 
 
 function injectWeb3() {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     if (typeof web3 !== "undefined") {
-      // Use Mist/MetaMask's provider
       resolve({
         metamask: new __WEBPACK_IMPORTED_MODULE_1_web3___default.a(web3.currentProvider)
       });
     } else {
-      // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-      resolve({
-        web3: new __WEBPACK_IMPORTED_MODULE_1_web3___default.a(
-          new __WEBPACK_IMPORTED_MODULE_1_web3___default.a.providers.HttpProvider(
-            "https://ropsten.infura.io/cglHTDR60SijNPajNpZZ"
-          )
-        )
-      });
+      reject('Metamask is unavailable. Please allow MetaMask to connect to Ropsten network to function')
     }
   });
 }
@@ -27975,9 +27967,7 @@ function injectContract(provider) {
   const Placeth = __WEBPACK_IMPORTED_MODULE_2_truffle_contract___default()(__WEBPACK_IMPORTED_MODULE_0__build_contracts_Placeth_json___default.a);
   Placeth.setProvider(provider);
 
-  return Promise.resolve(
-    Placeth.at("0xbF6dcd87C7a0D585b23379BC4338235294AeF2F5")
-  );
+  return Promise.resolve(Placeth.at("0xbF6dcd87C7a0D585b23379BC4338235294AeF2F5"))
 }
 
 
@@ -28086,6 +28076,21 @@ function injectContract(provider) {
       instance.frameRate(0);
       instance.draw();
     };
+
+    instance.smart_draw = () => {
+      instance.strokeWeight(0);
+      state.modifiedPixels.forEach(({x, y, color}) => {
+        const {r, g, b} = state.colors[color];
+        instance.fill(instance.color(r, g, b));
+        instance.rect(
+          magnifySize + x * size,
+          magnifySize + y * size,
+          size,
+          size
+        );
+      })
+      state.modifiedPixels = []
+    }
 
     //Draw
     instance.draw = () => {
@@ -28614,6 +28619,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 window.onload = async () => {
+  $('.modal').modal()
   const context = {
     selected: {
       active: false,
@@ -28623,7 +28629,8 @@ window.onload = async () => {
     _lastSyncedBlockNumber: 0,
     selectedColor: 0,
     colorMap: null,
-    colors: []
+    colors: [],
+    modifiedPixels: []
   };
 
   const sketch = new __WEBPACK_IMPORTED_MODULE_2__sketch__["a" /* default */](context, {
@@ -28631,6 +28638,8 @@ window.onload = async () => {
       context.selected = selected;
     }
   });
+
+  sketch._reference.draw()
 
   context.colors.slice(0, context.colors.length - 1).forEach((c, index) => {
     const div = document.createElement("div");
@@ -28644,10 +28653,42 @@ window.onload = async () => {
     document.querySelector(".color-pallete").appendChild(div);
   });
 
-  const { metamask } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["a" /* injectWeb3 */])();
+  const { metamask } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["a" /* injectWeb3 */])()
+    .catch(err => {
+      $('#error-modal').modal('open')
+      $('.modal-content').html(err)
 
-  const { contract } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["b" /* injectContract */])(metamask.currentProvider);
+      return {
+        metamask: null
+      }
+    });
 
+  if (!metamask) {
+    return;
+  }
+
+
+  const shouldContinue = await new Promise (resolve => {
+    metamask.version.getNetwork((err, net_id) => {
+      if (err) {
+        resolve(false)
+      } else {
+        resolve(net_id == 3)
+      }
+    })
+  })
+
+  if (!shouldContinue) {
+    $('#error-modal').modal('open')
+    $('.modal-content').html('Must be connected to Ropsten network for application to function')
+    return;
+  }
+
+  const { contract } = await __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__inject__["b" /* injectContract */])(metamask.currentProvider)
+
+  if (!contract) {
+    return;
+  }
   context.contract = contract;
 
   const poller = __WEBPACK_IMPORTED_MODULE_1__poller__["a" /* default */].init();
@@ -28670,7 +28711,8 @@ window.onload = async () => {
         },
         (err, tx) => {
           if (err) {
-            console.error(err);
+            $('#error-modal').modal('open')
+            $('.modal-content').html(err.message)
             return;
           }
         }
@@ -28684,15 +28726,13 @@ window.onload = async () => {
       return;
     }
     context.address = metamask.eth.accounts[0];
-    document.querySelector(".current_address .logo").src = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3_ethereum_blockies__["toDataUrl"])(
-      context.address
-    );
+    document.querySelector(".current_address .logo").src = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3_ethereum_blockies__["toDataUrl"])(context.address);
 
-    document.querySelector(".current_address .title").innerHTML =
-      context.address;
+    document.querySelector(".current_address .title").innerHTML = context.address;
   });
-
+  const blockNumber = document.querySelector('.block-number')
   poller.queue("render", () => {
+
     const _commitEvent = context.contract.Commit(null, {
       fromBlock: 1 + context._lastSyncedBlockNumber,
       toBlock: "latest"
@@ -28702,15 +28742,15 @@ window.onload = async () => {
       if (!error) {
         context._lastSyncedBlockNumber = result.blockNumber;
         let { x, y, color } = result.args;
-
         x = Number(x);
         y = Number(y);
         color = Number(color);
 
         context.colorMap[x][y] = color;
+        context.modifiedPixels.push({x, y, color})
       }
     });
-    sketch._reference.draw()
+    sketch._reference.smart_draw()
   });
 };
 
@@ -31906,7 +31946,7 @@ exports = module.exports = __webpack_require__(100)();
 
 
 // module
-exports.push([module.i, "html, body {\n  height: 100%;\n  overflow-y: scroll;\n}\n\n#application {\n  display: flex;\n  flex-direction: row;\n  height: 100%;\n  justify-content: center;\n}\n\n#application .color-pallete .color {\n  margin: 1px 2px 2px 5px\n}\n#application canvas {\n  border: .1px solid black;\n}\n\n.container {\n  margin-top: 80px;\n  overflow-y: scroll;\n}\n\ncanvas {\n  background: grey;\n  cursor: pointer;\n  width: 1614px;\n  height: 1614px;\n}\n\n.menu {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n}\n.color-pallete {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n.color {\n  width: 40px;\n  height: 40px;\n  cursor: pointer;\n  transition: all .2s ease;\n}\n\n.color.active {\n  width: 50px;\n  height: 50px;\n}\n.color:hover {\n  opacity: 0.8;\n}\n\n.current_address {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n}\n\nnav {\n  z-index: 10000;\n  position: fixed;\n}\n\nnav .nav-wrapper {\n  overflow: hidden;\n}\n\nnav ul {\n  float: right;\n}\n\n.nav-wrapper .primary {\n  margin-left: 20px;\n}\n\n.logo {\n  height: 50px;\n  width: 50px;\n  margin: 0px 10px;\n  border: .8px solid black;\n}\n", ""]);
+exports.push([module.i, "html, body {\n  height: 100%;\n  overflow-y: scroll;\n}\n\n#application {\n  display: flex;\n  flex-direction: row;\n  height: 100%;\n  justify-content: center;\n}\n\n#application .color-pallete .color {\n  margin: 1px 2px 2px 5px\n}\n\n.container {\n  margin-top: 80px;\n  overflow-y: scroll;\n}\n\ncanvas {\n  background: grey;\n  cursor: pointer;\n  width: 1614px;\n  height: 1614px;\n}\n\n.menu {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n}\n.color-pallete {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n.color {\n  width: 40px;\n  height: 40px;\n  cursor: pointer;\n  transition: all .2s ease;\n}\n\n.color.active {\n  width: 50px;\n  height: 50px;\n}\n.color:hover {\n  opacity: 0.8;\n}\n\n.current_address {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n}\n\nnav {\n  z-index: 10000;\n  position: fixed;\n}\n\nnav .nav-wrapper {\n  overflow: hidden;\n}\n\nnav ul {\n  float: right;\n}\n\n.nav-wrapper .primary {\n  margin-left: 20px;\n}\n\n.logo {\n  height: 50px;\n  width: 50px;\n  margin: 0px 10px;\n  border: .8px solid black;\n}\n", ""]);
 
 // exports
 
