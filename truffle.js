@@ -1,9 +1,7 @@
 // Allows us to use ES6 in our migrations and tests.
 require("babel-register");
 const hd = require("truffle-hdwallet-provider");
-const mnemonic =
-  "joy ceiling kitten celery grass seed settle path again improve fever science";
-
+import config from './deploy/config'
 module.exports = {
   networks: {
     development: {
@@ -15,8 +13,8 @@ module.exports = {
     ropsten: {
       provider: function() {
         return new hd(
-          mnemonic,
-          "https://ropsten.infura.io/cglHTDR60SijNPajNpZZ"
+          config.mnemonic,
+          config.provider
         );
       },
       network_id: "3",

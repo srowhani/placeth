@@ -1,6 +1,6 @@
 export default {
   _options: {
-    delay: 1500
+    delay: 5000
   },
   intervals: {},
   _queue: {},
@@ -20,7 +20,7 @@ export default {
     this._queue = []
   },
   queue (name, fn) {
-    requestAnimationFrame(() =>fn());
+    requestAnimationFrame(() => fn());
     this._queue[name] = fn;
   },
   remove (name) {

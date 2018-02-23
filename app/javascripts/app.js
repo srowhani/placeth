@@ -1,7 +1,13 @@
-import { injectContract, injectWeb3 } from "./inject";
+import {
+  injectContract,
+  injectWeb3
+} from "./inject";
 import Poller from "./poller";
 import Sketch from "./sketch";
-import { toDataUrl } from "ethereum-blockies";
+import {
+  toDataUrl
+} from "ethereum-blockies";
+const ROPSTEN_NETWORK_ID = 3;
 
 window.onload = async () => {
   $('.modal').modal()
@@ -38,103 +44,116 @@ window.onload = async () => {
     document.querySelector(".color-pallete").appendChild(div);
   });
 
-  const { metamask } = await injectWeb3()
+  const {
+    metamask,
+    poller
+  } = await injectWeb3()
     .catch(err => {
       $('#error-modal').modal('open')
       $('.modal-content').html(err)
 
       return {
-        metamask: null
+        metamask: null,
+        poller: null
       }
     });
 
-  if (!metamask) {
-    return;
-  }
+  const isConnectedToRopsten = await new Promise(resolve =>
+    poller.version.getNetwork((err, net_id) => resolve(err ? false : net_id == ROPSTEN_NETWORK_ID)))
 
-
-  const shouldContinue = await new Promise (resolve => {
-    metamask.version.getNetwork((err, net_id) => {
-      if (err) {
-        resolve(false)
-      } else {
-        resolve(net_id == 3)
-      }
-    })
-  })
-
-  if (!shouldContinue) {
+  if (!isConnectedToRopsten) {
     $('#error-modal').modal('open')
-    $('.modal-content').html('Must be connected to Ropsten network for application to function')
+    $('.modal-content').html('You must be connected to Ropsten network to proceed')
     return;
   }
 
-  const { contract } = await injectContract(metamask.currentProvider)
+  const {
+    contract
+  } = await injectContract(poller.currentProvider)
 
   if (!contract) {
     return;
   }
+
   context.contract = contract;
 
-  const poller = Poller.init();
+  const _poller = Poller.init();
   const submit = document.querySelector(".attempt-submit");
 
-  submit.addEventListener(
-    "click",
-    e => {
-      if (!context.selected.active) return;
+  submit.onclick = e => {
+    if (!context.selected.active) return;
 
-      const { x, y } = context.selected;
-      contract.fill(
-        x,
-        y,
-        context.selectedColor,
-        {
-          from: context.address,
-          to: contract.address,
-          gas: 25000
-        },
-        (err, tx) => {
-          if (err) {
-            $('#error-modal').modal('open')
-            $('.modal-content').html(err.message)
-            return;
-          }
-        }
-      );
-    },
-    false
-  );
-
-  poller.queue("sync", () => {
-    if (context.address === metamask.eth.accounts[0]) {
+    if (!metamask) {
+      $('#error-modal').modal('open')
+      $('.modal-content').html('You need MetaMask installed and connected to ropsten to be able to transact!')
       return;
     }
-    context.address = metamask.eth.accounts[0];
-    document.querySelector(".current_address .logo").src = toDataUrl(context.address);
 
-    document.querySelector(".current_address .title").innerHTML = context.address;
+    const {
+      x,
+      y
+    } = context.selected;
+    contract.fill(
+      x,
+      y,
+      context.selectedColor, {
+        from: context.address,
+        to: contract.address,
+        gas: 25000
+      },
+      (err, tx) => {
+        console.log(tx);
+        if (err) {
+          $('#error-modal').modal('open')
+          $('.modal-content').html(err.message)
+          return;
+        }
+      }
+    );
+  };
+  _poller.queue("sync", () => {
+    if (!metamask) return;
+    metamask.eth.getAccounts((err, accounts) => {
+      if (context.address === accounts[0])
+        return;
+
+      if (!err) {
+        context.address = accounts[0];
+        document.querySelector('.current_address').style.display = 'flex';
+        document.querySelector(".current_address .logo").src = toDataUrl(context.address);
+        document.querySelector(".current_address .title").innerHTML = context.address;
+      }
+
+    })
   });
   const blockNumber = document.querySelector('.block-number')
-  poller.queue("render", () => {
-
+  _poller.queue("render", () => {
     const _commitEvent = context.contract.Commit(null, {
       fromBlock: 1 + context._lastSyncedBlockNumber,
       toBlock: "latest"
     });
+
+    _commitEvent.requestManager.stopPolling();
     _commitEvent.watch(function(error, result) {
-      _commitEvent.stopWatching();
       if (!error) {
         context._lastSyncedBlockNumber = result.blockNumber;
-        let { x, y, color } = result.args;
+        let {
+          x,
+          y,
+          color
+        } = result.args;
         x = Number(x);
         y = Number(y);
         color = Number(color);
 
         context.colorMap[x][y] = color;
-        context.modifiedPixels.push({x, y, color})
+        context.modifiedPixels.push({
+          x,
+          y,
+          color
+        })
+        sketch._reference.smart_draw();
       }
     });
-    sketch._reference.smart_draw()
   });
 };
