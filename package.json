@@ -9,7 +9,8 @@
     "testrpc": "ganache-cli --mnemonic \"test_network\" --accounts 50",
     "compile": "rm -f build/contracts/* && truffle compile",
     "migrate": "truffle migrate",
-    "clean": "truffle networks --clean"
+    "clean": "truffle networks --clean",
+    "deploy": "./deploy/index.sh"
   },
   "author": "Douglas von Kohorn",
   "license": "MIT",
