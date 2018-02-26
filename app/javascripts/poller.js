@@ -25,5 +25,8 @@ export default {
   },
   remove (name) {
     delete this._queue[name]
+  },
+  forceQueue (name) {
+    requestAnimationFrame(() => this._queue[name]());
   }
 }

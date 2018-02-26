@@ -59,17 +59,18 @@ window.onload = async () => {
     });
 
   const isConnectedToRopsten = await new Promise(resolve =>
-    poller.version.getNetwork((err, net_id) => resolve(err ? false : net_id == ROPSTEN_NETWORK_ID)))
+    (metamask || poller).version.getNetwork((err, net_id) => resolve(err ? false : net_id == ROPSTEN_NETWORK_ID)))
 
   if (!isConnectedToRopsten) {
     $('#error-modal').modal('open')
     $('.modal-content').html('You must be connected to Ropsten network to proceed')
+    poller.currentProvider.engine._stopPolling();
     return;
   }
 
   const {
     contract
-  } = await injectContract(poller.currentProvider)
+  } = await injectContract((metamask || poller).currentProvider)
 
   if (!contract) {
     return;
@@ -88,32 +89,45 @@ window.onload = async () => {
       $('.modal-content').html('You need MetaMask installed and connected to ropsten to be able to transact!')
       return;
     }
-
-    const {
-      x,
-      y
-    } = context.selected;
-    contract.fill(
-      x,
-      y,
-      context.selectedColor, {
-        from: context.address,
-        to: contract.address,
-        gas: 25000
-      },
-      (err, tx) => {
-        console.log(tx);
-        if (err) {
-          $('#error-modal').modal('open')
-          $('.modal-content').html(err.message)
-          return;
-        }
+    _poller.forceQueue('sync');
+    metamask.eth.getAccounts((err, accounts) => {
+      if (!accounts.length || context.address !== accounts[0]) {
+        $('#error-modal').modal('open')
+        $('.modal-content').html('You\'re acccount appears to be locked. Unlock your metamask, and try again')
+        return;
       }
-    );
+
+      const {
+        x,
+        y
+      } = context.selected;
+      contract.fill(
+        x,
+        y,
+        context.selectedColor, {
+          from: context.address,
+          to: contract.address,
+          gas: 25000
+        },
+        (err, tx) => {
+          console.log(tx);
+          if (err) {
+            $('#error-modal').modal('open')
+            $('.modal-content').html(err.message)
+            return;
+          }
+        }
+      );
+    })
+
   };
   _poller.queue("sync", () => {
     if (!metamask) return;
     metamask.eth.getAccounts((err, accounts) => {
+      if (!accounts.length) {
+        return;
+      }
+
       if (context.address === accounts[0])
         return;
 
