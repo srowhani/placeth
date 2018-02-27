@@ -47372,6 +47372,7 @@ function injectContract(provider) {
         mouseX >= cWidth + magnifySize ||
         mouseY >= cHeight + magnifySize
       ) {
+        options.onSelect(null)
         //Unselect square (by clicking elsewhere)
         state.selected.active = false;
         prev = {
@@ -47787,6 +47788,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 const ROPSTEN_NETWORK_ID = 3;
 
 window.onload = async () => {
+  $('.current_address').dropdown({
+    belowOrigin: true, // Displays dropdown below the button,
+    gutter: 0,
+  });
+
+
   $('.modal').modal()
   const context = {
     selected: {
@@ -47803,7 +47810,10 @@ window.onload = async () => {
 
   const sketch = new __WEBPACK_IMPORTED_MODULE_2__sketch__["a" /* default */](context, {
     onSelect(selected) {
-      context.selected = selected;
+      document.querySelector('.attempt-submit').disabled = !selected;
+      if (selected !== null) {
+        context.selected = selected;
+      }
     }
   });
 
@@ -47834,7 +47844,6 @@ window.onload = async () => {
         poller: null
       }
     });
-
   const isConnectedToRopsten = await new Promise(resolve =>
     (metamask || poller).version.getNetwork((err, net_id) => resolve(err ? false : net_id == ROPSTEN_NETWORK_ID)))
 
@@ -47887,12 +47896,14 @@ window.onload = async () => {
           gas: 25000
         },
         (err, tx) => {
-          console.log(tx);
           if (err) {
             $('#error-modal').modal('open')
             $('.modal-content').html(err.message)
             return;
           }
+          const url = `https://ropsten.etherscan.io/tx/${tx}`;
+          const t = $(`<a href='${url}' target='_blank'>Transaction Successful</a>`);
+          Materialize.toast(t, 2000);
         }
       );
     })
@@ -47910,6 +47921,12 @@ window.onload = async () => {
 
       if (!err) {
         context.address = accounts[0];
+        metamask.eth.getBalance(context.address, (balance_err, balance) => {
+          if (!balance_err) {
+            const b = metamask.fromWei(balance);
+            document.querySelector('.current-balance').innerHTML = b;
+          }
+        })
         document.querySelector('.current_address').style.display = 'flex';
         document.querySelector(".current_address .logo").src = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3_ethereum_blockies__["toDataUrl"])(context.address);
         document.querySelector(".current_address .title").innerHTML = context.address;
@@ -54548,7 +54565,7 @@ exports = module.exports = __webpack_require__(245)();
 
 
 // module
-exports.push([module.i, "html, body {\n  height: 100%;\n  overflow-y: scroll;\n}\n\n#application {\n  display: flex;\n  flex-direction: row;\n  height: 100%;\n  justify-content: center;\n}\n\n#application .color-pallete .color {\n  margin: 1px 2px 2px 5px\n}\n\n.container {\n  margin-top: 80px;\n}\n\ncanvas {\n  background: grey;\n  cursor: pointer;\n  width: 1614px;\n  height: 1614px;\n}\n\n.menu {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n}\n.color-pallete {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n.color {\n  width: 40px;\n  height: 40px;\n  cursor: pointer;\n  transition: all .2s ease;\n  border: 1px solid black;\n}\n\n.color.active {\n  width: 50px;\n  height: 50px;\n}\n.color:hover {\n  opacity: 0.8;\n}\n\n.current_address {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  display: none;\n}\n\nnav {\n  z-index: 10000;\n  position: fixed;\n}\n\nnav .nav-wrapper {\n  overflow: hidden;\n}\n\nnav ul {\n  float: right;\n}\n\n.nav-wrapper .primary {\n  margin-left: 20px;\n}\n\n.logo {\n  height: 50px;\n  width: 50px;\n  margin: 0px 10px;\n  border: .8px solid black;\n}\n", ""]);
+exports.push([module.i, "html, body {\n  height: 100%;\n  overflow-y: scroll;\n}\n\n#application {\n  display: flex;\n  flex-direction: row;\n  height: 100%;\n  justify-content: center;\n}\n\n#application .color-pallete .color {\n  margin: 1px 2px 2px 5px\n}\n\n.container {\n  margin-top: 80px;\n}\n\ncanvas {\n  background: grey;\n  cursor: pointer;\n  width: 1614px;\n  height: 1614px;\n}\n\n.menu {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n}\n.color-pallete {\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n}\n\n.color {\n  width: 40px;\n  height: 40px;\n  cursor: pointer;\n  transition: all .2s ease;\n  border: 1px solid black;\n}\n\n.color.active {\n  width: 50px;\n  height: 50px;\n}\n.color:hover {\n  opacity: 0.8;\n}\n\n.current_address {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  display: none;\n}\n\nnav {\n  z-index: 10000;\n  position: fixed;\n  background: #26a69a;\n}\n\nnav ul {\n  float: right;\n}\n\n.nav-wrapper .primary {\n  margin-left: 20px;\n}\n\n.logo {\n  height: 50px;\n  width: 50px;\n  margin: 0px 10px;\n}\n", ""]);
 
 // exports
 
