@@ -187,6 +187,7 @@ export default function(state, options = {}) {
         mouseX >= cWidth + magnifySize ||
         mouseY >= cHeight + magnifySize
       ) {
+        options.onSelect(null)
         //Unselect square (by clicking elsewhere)
         state.selected.active = false;
         prev = {

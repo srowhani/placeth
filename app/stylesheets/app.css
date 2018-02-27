@@ -62,10 +62,7 @@ canvas {
 nav {
   z-index: 10000;
   position: fixed;
-}
-
-nav .nav-wrapper {
-  overflow: hidden;
+  background: #26a69a;
 }
 
 nav ul {
@@ -80,5 +77,4 @@ nav ul {
   height: 50px;
   width: 50px;
   margin: 0px 10px;
-  border: .8px solid black;
 }

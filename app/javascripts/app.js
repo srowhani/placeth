@@ -10,6 +10,12 @@ import {
 const ROPSTEN_NETWORK_ID = 3;
 
 window.onload = async () => {
+  $('.current_address').dropdown({
+    belowOrigin: true, // Displays dropdown below the button,
+    gutter: 0,
+  });
+
+
   $('.modal').modal()
   const context = {
     selected: {
@@ -26,7 +32,10 @@ window.onload = async () => {
 
   const sketch = new Sketch(context, {
     onSelect(selected) {
-      context.selected = selected;
+      document.querySelector('.attempt-submit').disabled = !selected;
+      if (selected !== null) {
+        context.selected = selected;
+      }
     }
   });
 
@@ -57,7 +66,6 @@ window.onload = async () => {
         poller: null
       }
     });
-
   const isConnectedToRopsten = await new Promise(resolve =>
     (metamask || poller).version.getNetwork((err, net_id) => resolve(err ? false : net_id == ROPSTEN_NETWORK_ID)))
 
@@ -110,12 +118,14 @@ window.onload = async () => {
           gas: 25000
         },
         (err, tx) => {
-          console.log(tx);
           if (err) {
             $('#error-modal').modal('open')
             $('.modal-content').html(err.message)
             return;
           }
+          const url = `https://ropsten.etherscan.io/tx/${tx}`;
+          const t = $(`<a href='${url}' target='_blank'>Transaction Successful</a>`);
+          Materialize.toast(t, 2000);
         }
       );
     })
@@ -133,6 +143,12 @@ window.onload = async () => {
 
       if (!err) {
         context.address = accounts[0];
+        metamask.eth.getBalance(context.address, (balance_err, balance) => {
+          if (!balance_err) {
+            const b = metamask.fromWei(balance);
+            document.querySelector('.current-balance').innerHTML = b;
+          }
+        })
         document.querySelector('.current_address').style.display = 'flex';
         document.querySelector(".current_address .logo").src = toDataUrl(context.address);
         document.querySelector(".current_address .title").innerHTML = context.address;
