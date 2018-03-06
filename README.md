@@ -19,3 +19,5 @@ The client will schedule rerenders of Canvas to live update new modifications ma
 latest events of Commit type.
 
 Demo application can be found at http://srowhani.github.io/placeth
+
+Change made by awais ...... lol
